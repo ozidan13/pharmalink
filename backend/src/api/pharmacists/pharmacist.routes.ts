@@ -38,8 +38,10 @@ router.get('/me', authenticate, isPharmacist, getProfile);
 router.put('/me', authenticate, isPharmacist, validateUpdateProfile, updateProfile);
 router.post('/me/cv', authenticate, isPharmacist, upload.single('cv'), uploadCV);
 
-// Routes for pharmacy owners
-router.get('/search', authenticate, isPharmacyOwner, validateSearchParams, searchPharmacists);
+// Public search route
+router.get('/search', validateSearchParams, searchPharmacists);
+
+// Protected routes for pharmacy owners
 router.get('/:id', authenticate, isPharmacyOwner, getPharmacistById);
 
 export default router;

@@ -159,34 +159,21 @@ export const searchPharmacists = async (req: Request, res: Response) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { latitude, longitude, radius = 10, available } = req.query;
+    const { 
+      latitude, 
+      longitude, 
+      radius = '10', // Default to 10km if not provided
+      available 
+    } = req.query;
 
-    // Check if the pharmacy owner has a valid subscription
-    const pharmacyOwner = await prisma.pharmacyOwnerProfile.findUnique({
-      where: { userId: req.user?.id }
-    });
-
-    if (!pharmacyOwner) {
-      return res.status(404).json({ message: 'Pharmacy owner profile not found' });
-    }
-
-    // Determine search radius based on subscription status
-    let maxRadius = 10; // Default radius in km
+    // Convert radius to number and validate
+    const searchRadius = Math.min(Number(radius), 100); // Cap at 100km
     
-    if (pharmacyOwner.subscriptionStatus === 'premium') {
-      maxRadius = 50;
-    } else if (pharmacyOwner.subscriptionStatus === 'basic') {
-      maxRadius = 25;
-    }
-
-    // Use the smaller of the requested radius and the max allowed radius
-    const searchRadius = Math.min(Number(radius), maxRadius);
-
     // Build the availability filter
-    const availabilityFilter = available === 'true' ? 'AND available = true' : '';
+    const availabilityFilter = available === 'true' ? 'AND "available" = true' : '';
 
-    // Use PostGIS to find pharmacists within the radius
-    const pharmacists = await prisma.$queryRawUnsafe<any[]>(`
+    // Use PostGIS to find pharmacists within the radius with parameterized query
+    const pharmacists = await prisma.$queryRaw<any[]>`
       SELECT 
         id, 
         "firstName", 
@@ -198,30 +185,49 @@ export const searchPharmacists = async (req: Request, res: Response) => {
         education, 
         latitude, 
         longitude, 
-        available,
+        "available",
         ST_Distance(
-          ST_MakePoint(longitude, latitude)::geography, 
+          ST_MakePoint("longitude", "latitude")::geography, 
           ST_MakePoint(${Number(longitude)}, ${Number(latitude)})::geography
-        ) / 1000 AS distance_km 
+        ) / 1000 AS "distanceKm" 
       FROM "PharmacistProfile" 
       WHERE ST_DWithin(
-        ST_MakePoint(longitude, latitude)::geography, 
+        ST_MakePoint("longitude", "latitude")::geography, 
         ST_MakePoint(${Number(longitude)}, ${Number(latitude)})::geography, 
         ${searchRadius * 1000}
       ) ${availabilityFilter}
-      ORDER BY distance_km ASC;
-    `);
+      ORDER BY "distanceKm" ASC
+      LIMIT 100; -- Limit results to prevent performance issues
+    `;
 
     return res.status(200).json({
-      message: 'Pharmacists found',
-      count: pharmacists.length,
-      maxRadius,
-      searchRadius,
-      pharmacists
+      success: true,
+      data: {
+        pharmacists,
+        pagination: {
+          total: pharmacists.length,
+          limit: 100,
+          page: 1,
+          pages: 1
+        },
+        filters: {
+          applied: {
+            latitude: Number(latitude),
+            longitude: Number(longitude),
+            radius: searchRadius,
+            available: available === 'true'
+          }
+        }
+      }
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error searching pharmacists:', error);
-    return res.status(500).json({ message: 'Server error while searching pharmacists' });
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Failed to search pharmacists',
+      error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+    });
   }
 };
 
