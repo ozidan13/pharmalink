@@ -112,8 +112,8 @@ export const getProductById = async (req: Request, res: Response) => {
             contactPerson: true,
             phoneNumber: true,
             address: true,
-            latitude: true,
-            longitude: true
+            city: true,
+            area: true
           }
         }
       }

@@ -3,6 +3,7 @@ import { prisma } from '../../server';
 import { validationResult } from 'express-validator';
 import fs from 'fs';
 import path from 'path';
+import { Prisma } from '@prisma/client';
 
 // Get the current pharmacist's profile
 export const getProfile = async (req: Request, res: Response) => {
@@ -24,12 +25,12 @@ export const getProfile = async (req: Request, res: Response) => {
         bio: true,
         experience: true,
         education: true,
-        latitude: true,
-        longitude: true,
+        city: true,
+        area: true,
         available: true,
         createdAt: true,
         updatedAt: true
-      }
+      } as const // Use const assertion to preserve literal types
     });
 
     if (!profile) {
@@ -65,25 +66,27 @@ export const updateProfile = async (req: Request, res: Response) => {
       bio,
       experience,
       education,
-      latitude,
-      longitude,
+      city,
+      area,
       available
     } = req.body;
 
-    // Update profile
+    // Update profile with city (required) and area (optional)
+    const updateData = {
+      firstName,
+      lastName,
+      phoneNumber,
+      bio,
+      experience,
+      education,
+      city: city as string, // Ensure city is a string and required
+      ...(area !== undefined && { area: area as string }), // Include area only if provided
+      ...(available !== undefined && { available }) // Include available only if provided
+    };
+    
     const updatedProfile = await prisma.pharmacistProfile.update({
       where: { userId },
-      data: {
-        firstName,
-        lastName,
-        phoneNumber,
-        bio,
-        experience,
-        education,
-        latitude,
-        longitude,
-        available: available !== undefined ? available : undefined
-      }
+      data: updateData
     });
 
     return res.status(200).json({
@@ -131,12 +134,12 @@ export const getPharmacistById = async (req: Request, res: Response) => {
         bio: true,
         experience: true,
         education: true,
-        latitude: true,
-        longitude: true,
+        city: true,
+        area: true,
         available: true,
         createdAt: true,
         updatedAt: true
-      }
+      } as const // Use const assertion to preserve literal types
     });
 
     if (!pharmacist) {
@@ -150,71 +153,79 @@ export const getPharmacistById = async (req: Request, res: Response) => {
   }
 };
 
-// Search for pharmacists based on location and other criteria
+// Search for pharmacists based on city and other criteria
 export const searchPharmacists = async (req: Request, res: Response) => {
   try {
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array() 
+      });
     }
 
     const { 
-      latitude, 
-      longitude, 
-      radius = '10', // Default to 10km if not provided
-      available 
+      city,
+      area,
+      available,
+      page = '1',
+      limit = '10'
     } = req.query;
 
-    // Convert radius to number and validate
-    const searchRadius = Math.min(Number(radius), 100); // Cap at 100km
-    
-    // Build the availability filter
-    const availabilityFilter = available === 'true' ? 'AND "available" = true' : '';
+    // Convert page and limit to numbers
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string) || 10));
+    const skip = (pageNum - 1) * limitNum;
 
-    // Use PostGIS to find pharmacists within the radius with parameterized query
-    const pharmacists = await prisma.$queryRaw<any[]>`
-      SELECT 
-        id, 
-        "firstName", 
-        "lastName", 
-        "phoneNumber", 
-        "cvUrl", 
-        bio, 
-        experience, 
-        education, 
-        latitude, 
-        longitude, 
-        "available",
-        ST_Distance(
-          ST_MakePoint("longitude", "latitude")::geography, 
-          ST_MakePoint(${Number(longitude)}, ${Number(latitude)})::geography
-        ) / 1000 AS "distanceKm" 
-      FROM "PharmacistProfile" 
-      WHERE ST_DWithin(
-        ST_MakePoint("longitude", "latitude")::geography, 
-        ST_MakePoint(${Number(longitude)}, ${Number(latitude)})::geography, 
-        ${searchRadius * 1000}
-      ) ${availabilityFilter}
-      ORDER BY "distanceKm" ASC
-      LIMIT 100; -- Limit results to prevent performance issues
-    `;
+    // Build the where clause
+    const where: any = { 
+      city: city as string,
+      ...(area && { area: area as string }),
+      ...(available === 'true' && { available: true })
+    };
+
+    // Get total count for pagination
+    const total = await prisma.pharmacistProfile.count({ where });
+    
+    // Find pharmacists with pagination
+    const pharmacists = await prisma.pharmacistProfile.findMany({
+      where,
+      include: {
+        user: {
+          select: {
+            email: true
+          }
+        }
+      },
+      skip,
+      take: limitNum,
+      orderBy: {
+        lastName: 'asc'
+      }
+    });
+
+    // Calculate pagination metadata
+    const pages = Math.ceil(total / limitNum);
 
     return res.status(200).json({
       success: true,
       data: {
-        pharmacists,
+        pharmacists: pharmacists.map(({ user, ...pharmacist }) => ({
+          ...pharmacist,
+          email: user?.email || null
+        })),
         pagination: {
-          total: pharmacists.length,
-          limit: 100,
-          page: 1,
-          pages: 1
+          total,
+          limit: limitNum,
+          page: pageNum,
+          pages
         },
         filters: {
           applied: {
-            latitude: Number(latitude),
-            longitude: Number(longitude),
-            radius: searchRadius,
+            city,
+            area: area || null,
             available: available === 'true'
           }
         }

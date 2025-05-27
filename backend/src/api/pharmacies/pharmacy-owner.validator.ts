@@ -24,15 +24,20 @@ export const validateUpdateProfile = [
     .withMessage('Address must be a string'),
   
   // Location validation
-  body('latitude')
-    .optional()
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude must be between -90 and 90'),
+  body('city')
+    .notEmpty()
+    .withMessage('City is required')
+    .isString()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('City must be between 2 and 100 characters'),
   
-  body('longitude')
+  body('area')
     .optional()
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude must be between -180 and 180')
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Area must be less than 100 characters')
 ];
 
 // Validation for subscription update

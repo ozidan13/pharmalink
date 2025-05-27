@@ -49,8 +49,8 @@ All API errors follow a standard format:
   "bio": "Experienced pharmacist with 5 years in retail pharmacy",
   "experience": "5 years in retail pharmacy",
   "education": "PharmD from University of Example",
-  "latitude": 37.7749,
-  "longitude": -122.4194
+  "city": "Cairo",
+  "area": "Nasr City"
 }
 ```
 
@@ -78,8 +78,8 @@ All API errors follow a standard format:
   "contactPerson": "Jane Smith",
   "phoneNumber": "+1234567890",
   "address": "123 Main St, City, Country",
-  "latitude": 37.7749,
-  "longitude": -122.4194
+  "city": "Cairo",
+  "area": "Nasr City"
 }
 ```
 
@@ -137,8 +137,8 @@ All API errors follow a standard format:
   "bio": "Updated bio information",
   "experience": "6 years in retail pharmacy",
   "education": "PharmD from University of Example",
-  "latitude": 37.7749,
-  "longitude": -122.4194,
+  "city": "Cairo",
+  "area": "Nasr City",
   "available": true
 }
 ```
@@ -156,8 +156,8 @@ All API errors follow a standard format:
     "bio": "Updated bio information",
     "experience": "6 years in retail pharmacy",
     "education": "PharmD from University of Example",
-    "latitude": 37.7749,
-    "longitude": -122.4194,
+    "city": "Cairo",
+    "area": "Nasr City",
     "available": true
   }
 }
@@ -167,33 +167,52 @@ All API errors follow a standard format:
 
 - **URL**: `/pharmacists/search`
 - **Method**: `GET`
-- **Auth Required**: No
+- **Auth Required**: Yes (Pharmacy Owner only)
 - **Query Parameters**:
-  - `latitude` (required): Latitude for location-based search
-  - `longitude` (required): Longitude for location-based search
-  - `radius` (optional): Search radius in kilometers (default: 10)
-  - `available` (optional): Filter by availability (true/false)
+  - `city` (required): Filter by city
+  - `area` (optional): Filter by area within city
+  - `available` (optional): `true` to show only available pharmacists
+  - `page` (optional): Page number for pagination (default: 1)
+  - `limit` (optional): Number of items per page (default: 10, max: 100)
 
 - **Success Response**: `200 OK`
 
 ```json
 {
-  "pharmacists": [
-    {
-      "id": "pharmacist_id",
-      "firstName": "John",
-      "lastName": "Doe",
-      "bio": "Experienced pharmacist",
-      "experience": "6 years in retail pharmacy",
-      "education": "PharmD from University of Example",
-      "available": true,
-      "distance": 2.5, // distance in kilometers
-      "user": {
-        "email": "pharmacist@example.com"
+  "success": true,
+  "data": {
+    "pharmacists": [
+      {
+        "id": "pharmacist_id",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "pharmacist@example.com",
+        "phoneNumber": "+1234567890",
+        "bio": "Experienced pharmacist",
+        "experience": "5 years in retail pharmacy",
+        "education": "PharmD from University of Example",
+        "city": "Cairo",
+        "area": "Nasr City",
+        "available": true,
+        "cvUrl": "https://example.com/cvs/john_doe.pdf",
+        "createdAt": "2023-01-01T00:00:00Z",
+        "updatedAt": "2023-01-01T00:00:00Z"
+      }
+    ],
+    "pagination": {
+      "total": 1,
+      "limit": 10,
+      "page": 1,
+      "pages": 1
+    },
+    "filters": {
+      "applied": {
+        "city": "Cairo",
+        "area": "Nasr City",
+        "available": true
       }
     }
-    // More pharmacists...
-  ]
+  }
 }
 ```
 
@@ -212,8 +231,8 @@ All API errors follow a standard format:
   "contactPerson": "Jane Smith",
   "phoneNumber": "+1234567890",
   "address": "123 Main St, City, Country",
-  "latitude": 37.7749,
-  "longitude": -122.4194
+  "city": "Cairo",
+  "area": "Nasr City"
 }
 ```
 

@@ -37,11 +37,9 @@ model PharmacistProfile {
   bio         String?
   experience  String? // Could be structured JSON or text
   education   String? // Could be structured JSON or text
-  // For location, store latitude and longitude for PostGIS queries
-  latitude    Float?
-  longitude   Float?
-  // Prisma doesn't directly support PostGIS types like 'Point'.
-  // We store lat/lon and query using raw SQL with PostGIS functions.
+  // Location information
+  city        String
+  area        String?  // Optional: more specific area within the city
   available   Boolean @default(true) // Availability status
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -55,9 +53,9 @@ model PharmacyOwnerProfile {
   contactPerson String
   phoneNumber   String?
   address       String?
-  // For location of the pharmacy
-  latitude      Float?
-  longitude     Float?
+  // Location information
+  city          String
+  area          String?  // Optional: more specific area within the city
   subscriptionStatus String @default("none") // e.g., none, basic, premium
   subscriptionExpiresAt DateTime?
   createdAt     DateTime  @default(now())

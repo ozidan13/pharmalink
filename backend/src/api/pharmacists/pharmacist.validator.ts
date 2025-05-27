@@ -34,15 +34,19 @@ export const validateUpdateProfile = [
     .withMessage('Education must be a string'),
   
   // Location validation
-  body('latitude')
+  body('city')
     .optional()
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude must be between -90 and 90'),
+    .isString()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('City must be between 2 and 100 characters'),
   
-  body('longitude')
+  body('area')
     .optional()
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude must be between -180 and 180'),
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Area must be less than 100 characters'),
   
   body('available')
     .optional()
@@ -52,25 +56,33 @@ export const validateUpdateProfile = [
 
 // Validation for search parameters
 export const validateSearchParams = [
-  query('latitude')
+  query('city')
     .notEmpty()
-    .withMessage('Latitude is required')
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude must be between -90 and 90'),
+    .withMessage('City is required')
+    .isString()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('City must be between 2 and 100 characters'),
   
-  query('longitude')
-    .notEmpty()
-    .withMessage('Longitude is required')
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude must be between -180 and 180'),
-  
-  query('radius')
+  query('area')
     .optional()
-    .isFloat({ min: 0, max: 100 })
-    .withMessage('Radius must be between 0 and 100 kilometers'),
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Area must be less than 100 characters'),
   
   query('available')
     .optional()
     .isIn(['true', 'false'])
-    .withMessage('Available must be true or false')
+    .withMessage('Available must be true or false'),
+    
+  query('page')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Page must be a positive integer'),
+    
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage('Limit must be between 1 and 100')
 ];

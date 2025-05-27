@@ -1,13 +1,27 @@
-import { Prisma, Product, PharmacyOwnerProfile } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { prisma } from '../../server';
-import { calculateDistance, getBoundingBox } from '../../utils/geospatial';
 
-type ProductWithPharmacy = Product & {
-  pharmacyOwner: Pick<
-    PharmacyOwnerProfile,
-    'id' | 'pharmacyName' | 'contactPerson' | 'phoneNumber' | 'address' | 'latitude' | 'longitude'
-  >;
-  distance?: number;
+// Define the type for product with pharmacy owner info
+type ProductWithPharmacy = {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  category: string;
+  isNearExpiry: boolean;
+  expiryDate: Date | null;
+  imageUrl: string | null;
+  stock: number;
+  pharmacyOwnerId: string;
+  pharmacyOwner: {
+    id: string;
+    pharmacyName: string;
+    contactPerson: string;
+    phoneNumber: string | null;
+    address: string | null;
+    city: string;
+    area: string | null;
+  };
 };
 
 interface SearchProductsParams {
@@ -18,9 +32,8 @@ interface SearchProductsParams {
   maxPrice?: number;
   inStock?: boolean;
   pharmacyId?: string;
-  latitude?: number;
-  longitude?: number;
-  radiusKm?: number; // in kilometers
+  city?: string;
+  area?: string;
   sortBy?: 'price' | 'expiryDate' | 'createdAt' | 'distance';
   sortOrder?: 'asc' | 'desc';
   page?: number;
@@ -55,9 +68,8 @@ export const searchProductsService = async ({
   maxPrice,
   inStock,
   pharmacyId,
-  latitude,
-  longitude,
-  radiusKm = 10, // Default 10km radius
+  city,
+  area,
   sortBy = 'createdAt',
   sortOrder = 'desc',
   page = 1,
@@ -69,7 +81,7 @@ export const searchProductsService = async ({
     limit = Math.min(100, Math.max(1, limit));
 
     // Build base filter
-    const baseFilter: Prisma.ProductWhereInput = {
+    const baseFilter: any = {
       AND: [
         // Text search on name and description
         query
@@ -102,42 +114,45 @@ export const searchProductsService = async ({
       ],
     };
 
-    // Handle geospatial filtering if coordinates are provided
-    let pharmacyFilter: Prisma.PharmacyOwnerProfileWhereInput | undefined;
-    if (latitude && longitude) {
-      const bbox = getBoundingBox(latitude, longitude, radiusKm);
-      
-      pharmacyFilter = {
-        AND: [
-          { latitude: { gte: bbox.minLat } },
-          { latitude: { lte: bbox.maxLat } },
-          { longitude: { gte: bbox.minLon } },
-          { longitude: { lte: bbox.maxLon } },
-        ],
+    // Add location filters if city/area provided
+    if (city) {
+      const locationFilter: any = {
+        pharmacyOwner: {
+          city: {
+            equals: city,
+            mode: 'insensitive',
+          },
+        },
       };
+      
+      // Add area filter if provided
+      if (area) {
+        locationFilter.pharmacyOwner.area = {
+          equals: area,
+          mode: 'insensitive',
+        };
+      }
+      
+      baseFilter.AND!.push(locationFilter);
     }
 
     // Get total count and products in parallel
-    const [totalCount, products, allCategories, priceRange] = await Promise.all([
-      // Get total count
+    const [totalCount, products] = await Promise.all([
       prisma.product.count({
         where: {
           ...baseFilter,
-          ...(pharmacyFilter ? { pharmacyOwner: pharmacyFilter } : {}),
         },
       }),
 
-      // Get paginated products
       prisma.product.findMany({
         where: {
           ...baseFilter,
-          ...(pharmacyFilter ? { pharmacyOwner: pharmacyFilter } : {}),
         },
         skip: (page - 1) * limit,
         take: limit,
         orderBy: {
-          [sortBy === 'distance' ? 'createdAt' : sortBy]: sortOrder,
-        } as Prisma.ProductOrderByWithRelationInput,
+          [sortBy]: sortOrder,
+        },
         include: {
           pharmacyOwner: {
             select: {
@@ -146,60 +161,60 @@ export const searchProductsService = async ({
               contactPerson: true,
               phoneNumber: true,
               address: true,
-              latitude: true,
-              longitude: true,
+              city: true,
+              area: true,
             },
           },
         },
-      }) as Promise<ProductWithPharmacy[]>,
-
-      // Get all categories for filters
-      prisma.product.findMany({
-        select: { category: true },
-        distinct: ['category'],
-      }),
-
-      // Get price range for filters
-      prisma.product.aggregate({
-        _min: { price: true },
-        _max: { price: true },
       }),
     ]);
 
-    // Calculate distances if coordinates are provided
-    const productsWithDistance = products.map((product) => {
-      if (!latitude || !longitude || !product.pharmacyOwner.latitude || !product.pharmacyOwner.longitude) {
-        return product;
-      }
+    // Get price range and categories in parallel
+    const [minPriceResult, maxPriceResult, categories] = await Promise.all([
+      prisma.$queryRaw<Array<{ minprice: number }>>`SELECT MIN(price) as minPrice FROM "Product"`,
+      prisma.$queryRaw<Array<{ maxprice: number }>>`SELECT MAX(price) as maxPrice FROM "Product"`,
+      prisma.product.findMany({
+        select: {
+          category: true,
+        },
+        distinct: ['category'],
+      })
+    ]);
 
-      const distance = calculateDistance(
-        latitude,
-        longitude,
-        product.pharmacyOwner.latitude,
-        product.pharmacyOwner.longitude
-      );
+    const priceRange = {
+      min: minPriceResult[0]?.minprice || 0,
+      max: maxPriceResult[0]?.maxprice || 0,
+    };
 
-      return {
-        ...product,
-        distance,
-      } as ProductWithPharmacy;
-    });
+    const allCategories = Array.from(
+      new Set(categories.map((r: { category: string | null }) => r.category).filter((c: string | null): c is string => !!c))
+    );
 
-    // Sort by distance if needed
-    if (sortBy === 'distance' && latitude && longitude) {
-      productsWithDistance.sort((a, b) => {
-        const distA = a.distance ?? Infinity;
-        const distB = b.distance ?? Infinity;
-        return sortOrder === 'asc' ? distA - distB : distB - distA;
+    // Sort by city/area if needed
+    if (sortBy === 'distance') {
+      (products as ProductWithPharmacy[]).sort((a, b) => {
+        // First sort by city
+        const cityA = a.pharmacyOwner.city?.toLowerCase() || '';
+        const cityB = b.pharmacyOwner.city?.toLowerCase() || '';
+        
+        if (cityA !== cityB) {
+          return sortOrder === 'asc' 
+            ? cityA.localeCompare(cityB)
+            : cityB.localeCompare(cityA);
+        }
+        
+        // If same city, sort by area if available
+        const areaA = a.pharmacyOwner.area?.toLowerCase() || '';
+        const areaB = b.pharmacyOwner.area?.toLowerCase() || '';
+        
+        return sortOrder === 'asc'
+          ? areaA.localeCompare(areaB)
+          : areaB.localeCompare(areaA);
       });
     }
 
-    // Convert Decimal to number for price range
-    const minPriceValue = priceRange._min.price !== null ? Number(priceRange._min.price) : 0;
-    const maxPriceValue = priceRange._max.price !== null ? Number(priceRange._max.price) : 0;
-
     return {
-      products: productsWithDistance,
+      products: products as unknown as ProductWithPharmacy[],
       pagination: {
         total: totalCount,
         page,
@@ -207,10 +222,10 @@ export const searchProductsService = async ({
         pages: Math.ceil(totalCount / limit),
       },
       filters: {
-        categories: [...new Set(allCategories.map((p) => p.category))],
+        categories: allCategories as string[],
         priceRange: {
-          min: minPriceValue,
-          max: maxPriceValue,
+          min: priceRange.min,
+          max: priceRange.max,
         },
       },
     };

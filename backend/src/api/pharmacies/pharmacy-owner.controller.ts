@@ -19,13 +19,13 @@ export const getProfile = async (req: Request, res: Response) => {
         contactPerson: true,
         phoneNumber: true,
         address: true,
-        latitude: true,
-        longitude: true,
+        city: true,
+        area: true,
         subscriptionStatus: true,
         subscriptionExpiresAt: true,
         createdAt: true,
         updatedAt: true
-      }
+      } as const
     });
 
     if (!profile) {
@@ -59,21 +59,23 @@ export const updateProfile = async (req: Request, res: Response) => {
       contactPerson,
       phoneNumber,
       address,
-      latitude,
-      longitude
+      city,
+      area
     } = req.body;
 
-    // Update profile
+    // Update profile with city (required) and area (optional)
+    const updateData = {
+      pharmacyName,
+      contactPerson,
+      phoneNumber,
+      address,
+      city: city as string,
+      ...(area !== undefined && { area: area as string })
+    };
+
     const updatedProfile = await prisma.pharmacyOwnerProfile.update({
       where: { userId },
-      data: {
-        pharmacyName,
-        contactPerson,
-        phoneNumber,
-        address,
-        latitude,
-        longitude
-      }
+      data: updateData
     });
 
     return res.status(200).json({
