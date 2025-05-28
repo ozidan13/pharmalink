@@ -4,11 +4,25 @@ import { validateRegisterPharmacist, validateRegisterPharmacyOwner, validateLogi
 
 const router = Router();
 
-// Register routes
-router.post('/register/pharmacist', validateRegisterPharmacist, registerPharmacist);
-router.post('/register/pharmacy-owner', validateRegisterPharmacyOwner, registerPharmacyOwner);
+/**
+ * @route   POST /api/auth/register/pharmacists
+ * @desc    Register a new pharmacist
+ * @access  Public
+ */
+router.post('/register/pharmacists', validateRegisterPharmacist, registerPharmacist);
 
-// Login route (common for both roles)
+/**
+ * @route   POST /api/auth/register/pharmacy-owners
+ * @desc    Register a new pharmacy owner
+ * @access  Public
+ */
+router.post('/register/pharmacy-owners', validateRegisterPharmacyOwner, registerPharmacyOwner);
+
+/**
+ * @route   POST /api/auth/login
+ * @desc    Authenticate user & get token
+ * @access  Public
+ */
 router.post('/login', validateLogin, login);
 
 export default router;

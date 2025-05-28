@@ -1,12 +1,16 @@
-# Pharma-Link API Documentation
+# Pharma-Link API Documentation (v1)
 
 This document provides details about the Pharma-Link API endpoints, request/response formats, and authentication requirements.
 
 ## Base URL
 
 ```
-http://localhost:5000/api
+http://localhost:5000/api/v1
 ```
+
+## API Versioning
+
+The API uses URL-based versioning (e.g., `/api/v1/`). All endpoints are prefixed with the version number to ensure backward compatibility.
 
 ## Authentication
 
@@ -34,7 +38,7 @@ All API errors follow a standard format:
 
 #### Register Pharmacist
 
-- **URL**: `/auth/register/pharmacist`
+- **URL**: `/auth/register/pharmacists`
 - **Method**: `POST`
 - **Auth Required**: No
 - **Request Body**:
@@ -65,7 +69,7 @@ All API errors follow a standard format:
 
 #### Register Pharmacy Owner
 
-- **URL**: `/auth/register/pharmacy-owner`
+- **URL**: `/auth/register/pharmacy-owners`
 - **Method**: `POST`
 - **Auth Required**: No
 - **Request Body**:
@@ -122,9 +126,33 @@ All API errors follow a standard format:
 
 ### Pharmacist Endpoints
 
+#### Get Pharmacist Profile
+
+- **URL**: `/pharmacists/me`
+- **Method**: `GET`
+- **Auth Required**: Yes (Pharmacist only)
+- **Success Response**: `200 OK`
+
+```json
+{
+  "id": "pharmacist_id",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "pharmacist@example.com",
+  "phoneNumber": "+1234567890",
+  "bio": "Experienced pharmacist",
+  "experience": "5 years in retail pharmacy",
+  "education": "PharmD from University of Example",
+  "city": "Cairo",
+  "area": "Nasr City",
+  "available": true,
+  "cvUrl": "https://example.com/cvs/john_doe.pdf"
+}
+```
+
 #### Update Pharmacist Profile
 
-- **URL**: `/pharmacists/profile`
+- **URL**: `/pharmacists/me`
 - **Method**: `PUT`
 - **Auth Required**: Yes (Pharmacist only)
 - **Request Body**:
@@ -167,7 +195,7 @@ All API errors follow a standard format:
 
 - **URL**: `/pharmacists/search`
 - **Method**: `GET`
-- **Auth Required**: Yes (Pharmacy Owner only)
+- **Auth Required**: No
 - **Query Parameters**:
   - `city` (required): Filter by city
   - `area` (optional): Filter by area within city
@@ -217,6 +245,89 @@ All API errors follow a standard format:
 ```
 
 ### Pharmacy Owner Endpoints
+
+#### Get Pharmacy Owner Profile
+
+- **URL**: `/pharmacies/me`
+- **Method**: `GET`
+- **Auth Required**: Yes (Pharmacy Owner only)
+- **Success Response**: `200 OK`
+
+```json
+{
+  "id": "owner_id",
+  "email": "owner@example.com",
+  "pharmacyName": "Example Pharmacy",
+  "contactPerson": "Jane Smith",
+  "phoneNumber": "+1234567890",
+  "address": "123 Main St, City, Country",
+  "city": "Cairo",
+  "area": "Nasr City",
+  "subscriptionType": "PREMIUM",
+  "subscriptionExpiresAt": "2024-12-31T23:59:59Z"
+}
+```
+
+#### Update Pharmacy Owner Profile
+
+- **URL**: `/pharmacies/me`
+- **Method**: `PUT`
+- **Auth Required**: Yes (Pharmacy Owner only)
+- **Request Body**:
+
+```json
+{
+  "pharmacyName": "Updated Pharmacy Name",
+  "contactPerson": "Updated Name",
+  "phoneNumber": "+1234567890",
+  "address": "Updated Address",
+  "city": "Cairo",
+  "area": "New Area"
+}
+```
+
+- **Success Response**: `200 OK`
+
+```json
+{
+  "message": "Profile updated successfully",
+  "profile": {
+    "id": "owner_id",
+    "pharmacyName": "Updated Pharmacy Name",
+    "contactPerson": "Updated Name",
+    "phoneNumber": "+1234567890",
+    "address": "Updated Address",
+    "city": "Cairo",
+    "area": "New Area"
+  }
+}
+```
+
+#### Update Subscription
+
+- **URL**: `/pharmacies/me/subscription`
+- **Method**: `POST`
+- **Auth Required**: Yes (Pharmacy Owner only)
+- **Request Body**:
+
+```json
+{
+  "subscriptionType": "PREMIUM",
+  "durationMonths": 12
+}
+```
+
+- **Success Response**: `200 OK`
+
+```json
+{
+  "message": "Subscription updated successfully",
+  "subscription": {
+    "type": "PREMIUM",
+    "expiresAt": "2024-12-31T23:59:59Z"
+  }
+}
+```
 
 #### Update Pharmacy Owner Profile
 
@@ -279,6 +390,236 @@ All API errors follow a standard format:
 ```
 
 ### Store Endpoints
+
+### Public Endpoints
+
+#### Get All Products
+
+- **URL**: `/store/products`
+- **Method**: `GET`
+- **Auth Required**: No
+- **Query Parameters**:
+  - `page` (optional): Page number (default: 1)
+  - `limit` (optional): Items per page (default: 10, max: 100)
+
+- **Success Response**: `200 OK`
+
+```json
+{
+  "success": true,
+  "data": {
+    "products": [
+      {
+        "id": "product_id",
+        "name": "Paracetamol 500mg",
+        "description": "Pain reliever and fever reducer",
+        "price": 10.99,
+        "quantity": 100,
+        "pharmacyId": "pharmacy_id",
+        "createdAt": "2023-01-01T00:00:00Z",
+        "updatedAt": "2023-01-01T00:00:00Z"
+      }
+    ],
+    "pagination": {
+      "total": 1,
+      "page": 1,
+      "limit": 10,
+      "totalPages": 1
+    }
+  }
+}
+```
+
+#### Search Products
+
+- **URL**: `/store/products/search`
+- **Method**: `GET`
+- **Auth Required**: No
+- **Query Parameters**:
+  - `query` (required): Search query
+  - `city` (optional): Filter by city
+  - `area` (optional): Filter by area
+  - `minPrice` (optional): Minimum price
+  - `maxPrice` (optional): Maximum price
+  - `page` (optional): Page number (default: 1)
+  - `limit` (optional): Items per page (default: 10, max: 100)
+
+- **Success Response**: `200 OK`
+
+```json
+{
+  "success": true,
+  "data": {
+    "products": [
+      {
+        "id": "product_id",
+        "name": "Paracetamol 500mg",
+        "description": "Pain reliever and fever reducer",
+        "price": 10.99,
+        "pharmacyName": "Example Pharmacy",
+        "pharmacyAddress": "123 Main St, City",
+        "distance": 1.5,
+        "createdAt": "2023-01-01T00:00:00Z"
+      }
+    ],
+    "pagination": {
+      "total": 1,
+      "page": 1,
+      "limit": 10,
+      "totalPages": 1
+    }
+  }
+}
+```
+
+#### Get Product by ID
+
+- **URL**: `/store/products/:id`
+- **Method**: `GET`
+- **Auth Required**: No
+- **Success Response**: `200 OK`
+
+```json
+{
+  "id": "product_id",
+  "name": "Paracetamol 500mg",
+  "description": "Pain reliever and fever reducer",
+  "price": 10.99,
+  "quantity": 100,
+  "pharmacyId": "pharmacy_id",
+  "pharmacyName": "Example Pharmacy",
+  "pharmacyAddress": "123 Main St, City",
+  "createdAt": "2023-01-01T00:00:00Z",
+  "updatedAt": "2023-01-01T00:00:00Z"
+}
+```
+
+### Pharmacy Owner Endpoints
+
+#### Create Product
+
+- **URL**: `/store/products`
+- **Method**: `POST`
+- **Auth Required**: Yes (Pharmacy Owner only)
+- **Request Body**:
+
+```json
+{
+  "name": "New Product",
+  "description": "Product description",
+  "price": 19.99,
+  "quantity": 50,
+  "category": "MEDICATION"
+}
+```
+
+- **Success Response**: `201 Created`
+
+```json
+{
+  "message": "Product created successfully",
+  "product": {
+    "id": "new_product_id",
+    "name": "New Product",
+    "description": "Product description",
+    "price": 19.99,
+    "quantity": 50,
+    "category": "MEDICATION",
+    "pharmacyId": "pharmacy_id",
+    "createdAt": "2023-01-01T00:00:00Z",
+    "updatedAt": "2023-01-01T00:00:00Z"
+  }
+}
+```
+
+#### Get My Products
+
+- **URL**: `/store/products/me`
+- **Method**: `GET`
+- **Auth Required**: Yes (Pharmacy Owner only)
+- **Query Parameters**:
+  - `page` (optional): Page number (default: 1)
+  - `limit` (optional): Items per page (default: 10, max: 100)
+  - `category` (optional): Filter by category
+  - `inStock` (optional): `true` to show only in-stock items
+
+- **Success Response**: `200 OK`
+
+```json
+{
+  "success": true,
+  "data": {
+    "products": [
+      {
+        "id": "product_id",
+        "name": "Paracetamol 500mg",
+        "description": "Pain reliever and fever reducer",
+        "price": 10.99,
+        "quantity": 100,
+        "category": "MEDICATION",
+        "createdAt": "2023-01-01T00:00:00Z",
+        "updatedAt": "2023-01-01T00:00:00Z"
+      }
+    ],
+    "pagination": {
+      "total": 1,
+      "page": 1,
+      "limit": 10,
+      "totalPages": 1
+    }
+  }
+}
+```
+
+#### Update Product
+
+- **URL**: `/store/products/:id`
+- **Method**: `PUT`
+- **Auth Required**: Yes (Pharmacy Owner only)
+- **Request Body**:
+
+```json
+{
+  "name": "Updated Product Name",
+  "description": "Updated description",
+  "price": 15.99,
+  "quantity": 75,
+  "category": "MEDICATION"
+}
+```
+
+- **Success Response**: `200 OK`
+
+```json
+{
+  "message": "Product updated successfully",
+  "product": {
+    "id": "product_id",
+    "name": "Updated Product Name",
+    "description": "Updated description",
+    "price": 15.99,
+    "quantity": 75,
+    "category": "MEDICATION",
+    "pharmacyId": "pharmacy_id",
+    "createdAt": "2023-01-01T00:00:00Z",
+    "updatedAt": "2023-01-02T00:00:00Z"
+  }
+}
+```
+
+#### Delete Product
+
+- **URL**: `/store/products/:id`
+- **Method**: `DELETE`
+- **Auth Required**: Yes (Pharmacy Owner only)
+- **Success Response**: `200 OK`
+
+```json
+{
+  "success": true,
+  "message": "Product deleted successfully"
+}
+```
 
 #### Create Product
 

@@ -31,11 +31,11 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
   next();
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/pharmacists', pharmacistRoutes);
-app.use('/api/pharmacy-owners', pharmacyOwnerRoutes);
-app.use('/api/store', storeRoutes);
+// API Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/pharmacists', pharmacistRoutes);
+app.use('/api/v1/pharmacies', pharmacyOwnerRoutes);
+app.use('/api/v1/store', storeRoutes);
 
 // Health check route
 app.get('/health', (_req: Request, res: Response) => {

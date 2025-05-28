@@ -1,9 +1,22 @@
 import { Router } from 'express';
-import { getProfile, updateProfile, getPharmacistById, searchPharmacists, uploadCV } from './pharmacist.controller';
-import { authenticate, isPharmacist, isPharmacyOwner } from '../../middleware/auth.middleware';
-import { validateUpdateProfile, validateSearchParams } from './pharmacist.validator';
 import multer from 'multer';
 import path from 'path';
+import { 
+  getProfile, 
+  updateProfile, 
+  getPharmacistById, 
+  searchPharmacists, 
+  uploadCV 
+} from './pharmacist.controller';
+import { 
+  authenticate, 
+  isPharmacist, 
+  isPharmacyOwner 
+} from '../../middleware/auth.middleware';
+import { 
+  validateUpdateProfile, 
+  validateSearchParams 
+} from './pharmacist.validator';
 
 const router = Router();
 
@@ -33,15 +46,42 @@ const upload = multer({
   }
 });
 
-// Pharmacist routes (protected by authentication)
-router.get('/me', authenticate, isPharmacist, getProfile);
-router.put('/me', authenticate, isPharmacist, validateUpdateProfile, updateProfile);
-router.post('/me/cv', authenticate, isPharmacist, upload.single('cv'), uploadCV);
+// Apply authentication to all routes that need it
+router.use(authenticate);
 
-// Public search route
+/**
+ * @route   GET /api/pharmacists/me
+ * @desc    Get current pharmacist's profile
+ * @access  Private (Pharmacist)
+ */
+router.get('/me', isPharmacist, getProfile);
+
+/**
+ * @route   PUT /api/pharmacists/me
+ * @desc    Update current pharmacist's profile
+ * @access  Private (Pharmacist)
+ */
+router.put('/me', isPharmacist, validateUpdateProfile, updateProfile);
+
+/**
+ * @route   POST /api/pharmacists/me/cv
+ * @desc    Upload/update pharmacist's CV
+ * @access  Private (Pharmacist)
+ */
+router.post('/me/cv', isPharmacist, upload.single('cv'), uploadCV);
+
+/**
+ * @route   GET /api/pharmacists/search
+ * @desc    Search for pharmacists (public)
+ * @access  Public
+ */
 router.get('/search', validateSearchParams, searchPharmacists);
 
-// Protected routes for pharmacy owners
-router.get('/:id', authenticate, isPharmacyOwner, getPharmacistById);
+/**
+ * @route   GET /api/pharmacists/:id
+ * @desc    Get pharmacist by ID (for pharmacy owners)
+ * @access  Private (Pharmacy Owner)
+ */
+router.get('/:id', isPharmacyOwner, getPharmacistById);
 
 export default router;
