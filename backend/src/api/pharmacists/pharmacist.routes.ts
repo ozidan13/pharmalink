@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import { 
   getProfile, 
   updateProfile, 
   getPharmacistById, 
   searchPharmacists, 
-  uploadCV 
+  uploadCV,
+  getCV
 } from './pharmacist.controller';
 import { 
   authenticate, 
@@ -20,30 +22,41 @@ import {
 
 const router = Router();
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), 'uploads', 'cvs');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // Configure multer for CV uploads
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, 'uploads/cvs');
+    cb(null, uploadsDir);
   },
   filename: (_req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `cv-${uniqueSuffix}${ext}`);
   }
 });
 
+// File filter for CV uploads
+const cvFileFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const filetypes = /pdf|doc|docx/;
+  const mimetype = filetypes.test(file.mimetype);
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  
+  if (mimetype && extname) {
+    return cb(null, true);
+  }
+  cb(new Error('Only PDF, DOC, and DOCX files are allowed (max 5MB)'));
+};
+
+// Configure multer with file size limit and filter
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (_req, file, cb) => {
-    const filetypes = /pdf|doc|docx/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(new Error('Only PDF, DOC, and DOCX files are allowed'));
-  }
+  fileFilter: cvFileFilter
 });
 
 // Apply authentication to all routes that need it
@@ -63,12 +76,10 @@ router.get('/me', isPharmacist, getProfile);
  */
 router.put('/me', isPharmacist, validateUpdateProfile, updateProfile);
 
-/**
- * @route   POST /api/pharmacists/me/cv
- * @desc    Upload/update pharmacist's CV
- * @access  Private (Pharmacist)
- */
-router.post('/me/cv', isPharmacist, upload.single('cv'), uploadCV);
+// CV management endpoints
+router.route('/me/cv')
+  .get(isPharmacist, getCV) // Get CV
+  .post(isPharmacist, upload.single('cv'), uploadCV); // Upload/Update CV
 
 /**
  * @route   GET /api/pharmacists/search

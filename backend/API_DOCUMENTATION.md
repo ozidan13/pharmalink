@@ -135,18 +135,26 @@ All API errors follow a standard format:
 
 ```json
 {
-  "id": "pharmacist_id",
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "pharmacist@example.com",
-  "phoneNumber": "+1234567890",
-  "bio": "Experienced pharmacist",
-  "experience": "5 years in retail pharmacy",
-  "education": "PharmD from University of Example",
-  "city": "Cairo",
-  "area": "Nasr City",
-  "available": true,
-  "cvUrl": "https://example.com/cvs/john_doe.pdf"
+  "success": true,
+  "data": {
+    "id": "pharmacist_id",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "pharmacist@example.com",
+    "phoneNumber": "+1234567890",
+    "bio": "Experienced pharmacist",
+    "experience": "5 years in retail pharmacy",
+    "education": "PharmD from University of Example",
+    "city": "Cairo",
+    "area": "Nasr City",
+    "available": true,
+    "cv": {
+      "url": "http://localhost:5000/uploads/cvs/cv-1234567890.pdf",
+      "uploadedAt": "2023-06-15T10:30:00Z"
+    },
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-06-15T10:30:00.000Z"
+  }
 }
 ```
 
@@ -176,7 +184,7 @@ All API errors follow a standard format:
 ```json
 {
   "message": "Profile updated successfully",
-  "profile": {
+  "data": {
     "id": "profile_id",
     "firstName": "John",
     "lastName": "Doe",
@@ -186,10 +194,72 @@ All API errors follow a standard format:
     "education": "PharmD from University of Example",
     "city": "Cairo",
     "area": "Nasr City",
-    "available": true
+    "available": true,
+    "cv": {
+      "url": "http://localhost:5000/uploads/cvs/cv-1234567890.pdf",
+      "uploadedAt": "2023-06-15T10:30:00Z"
+    },
+    "email": "pharmacist@example.com",
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-06-15T10:30:00.000Z"
   }
 }
 ```
+
+#### Pharmacist CV Management
+
+#### Upload/Update Pharmacist CV
+
+- **URL**: `/pharmacists/me/cv`
+- **Method**: `POST`
+- **Auth Required**: Yes (Pharmacist only)
+- **Content-Type**: `multipart/form-data`
+- **Request Body**:
+  - `cv`: (File) The CV file to upload (PDF, DOC, or DOCX, max 5MB)
+
+- **Success Response**: `200 OK`
+
+```json
+{
+  "success": true,
+  "message": "CV uploaded successfully",
+  "data": {
+    "cvUrl": "/uploads/cvs/cv-1234567890.pdf",
+    "updatedAt": "2023-06-15T10:30:00Z"
+  }
+}
+```
+
+- **Error Responses**:
+  - `400 Bad Request`: No file uploaded or invalid file type
+  - `401 Unauthorized`: User not authenticated
+  - `404 Not Found`: Pharmacist profile not found
+  - `413 Payload Too Large`: File size exceeds 5MB
+  - `500 Internal Server Error`: Error processing the file
+
+#### Get Pharmacist CV
+
+- **URL**: `/pharmacists/me/cv`
+- **Method**: `GET`
+- **Auth Required**: Yes (Pharmacist only)
+- **Note**: This endpoint is maintained for backward compatibility. The CV information is now included in the pharmacist's profile response.
+
+- **Success Response**: `200 OK`
+
+```json
+{
+  "success": true,
+  "data": {
+    "url": "http://localhost:5000/uploads/cvs/cv-1234567890.pdf",
+    "uploadedAt": "2023-06-15T10:30:00Z"
+  }
+}
+```
+
+- **Error Responses**:
+  - `401 Unauthorized`: User not authenticated
+  - `404 Not Found`: CV not found for the pharmacist
+  - `500 Internal Server Error`: Error retrieving CV information
 
 #### Search Pharmacists
 
@@ -222,9 +292,12 @@ All API errors follow a standard format:
         "city": "Cairo",
         "area": "Nasr City",
         "available": true,
-        "cvUrl": "https://example.com/cvs/john_doe.pdf",
+        "cv": {
+          "url": "http://localhost:5000/uploads/cvs/cv-1234567890.pdf",
+          "uploadedAt": "2023-06-15T10:30:00Z"
+        },
         "createdAt": "2023-01-01T00:00:00Z",
-        "updatedAt": "2023-01-01T00:00:00Z"
+        "updatedAt": "2023-06-15T10:30:00Z"
       }
     ],
     "pagination": {

@@ -1,0 +1,27 @@
+{
+    "message": "Pharmacist registered successfully",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtYjd6NGRodTAwMDBmdTk4ZmczdDNjdmEiLCJlbWFpbCI6InRlc3RjdkBnbWFpbC5jb20iLCJyb2xlIjoiUEhBUk1BQ0lTVCIsImlhdCI6MTc0ODQzODQ3MCwiZXhwIjoxNzQ4NTI0ODcwfQ.2VlFBG1EG3_VDyn0Lt90DEtwTPznLJWdBzTf-yfAAkI",
+    "user": {
+        "id": "cmb7z4dhu0000fu98fg3t3cva",
+        "email": "testcv@gmail.com",
+        "role": "PHARMACIST",
+        "profile": {
+            "firstName": "John",
+            "lastName": "Doe"
+        }
+    }
+}
+
+{
+    "message": "Pharmacy owner registered successfully",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtYjd6NWhrMTAwMDNmdTk4aTZscGhrb2siLCJlbWFpbCI6InRlc3RjdnBoYXJtYWN5QGV4YW1wbGUuY29tIiwicm9sZSI6IlBIQVJNQUNZX09XTkVSIiwiaWF0IjoxNzQ4NDM4NTIxLCJleHAiOjE3NDg1MjQ5MjF9.8WgNH-l8XuXA6qMCc8Mx-_PwPZXTvYfBfF3vUBX5SzY",
+    "user": {
+        "id": "cmb7z5hk10003fu98i6lphkok",
+        "email": "testcvpharmacy@example.com",
+        "role": "PHARMACY_OWNER",
+        "profile": {
+            "pharmacyName": "Example Pharmacy",
+            "contactPerson": "Jane Smith"
+        }
+    }
+}
