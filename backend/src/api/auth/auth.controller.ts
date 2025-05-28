@@ -8,11 +8,17 @@ import { validationResult } from 'express-validator';
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 // Helper function to generate JWT token
-const generateToken = (id: string, email: string, role: UserRole) => {
+const generateToken = (id: string, email: string, role: UserRole): string => {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+  
+  const expiresIn = process.env.JWT_EXPIRES_IN || '1d';
+  
   return jwt.sign(
     { id, email, role },
-    JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
+    JWT_SECRET as jwt.Secret,
+    { expiresIn } as jwt.SignOptions
   );
 };
 
@@ -72,8 +78,8 @@ export const registerPharmacist = async (req: Request, res: Response) => {
           bio,
           experience,
           education,
-          latitude,
-          longitude
+          city: req.body.city,
+          area: req.body.area || null
         }
       });
 
@@ -155,8 +161,8 @@ export const registerPharmacyOwner = async (req: Request, res: Response) => {
           contactPerson,
           phoneNumber,
           address,
-          latitude,
-          longitude
+          city: req.body.city,
+          area: req.body.area || null
         }
       });
 
