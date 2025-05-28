@@ -508,7 +508,7 @@ All API errors follow a standard format:
   "name": "New Product",
   "description": "Product description",
   "price": 19.99,
-  "quantity": 50,
+  "stock": 50,
   "category": "MEDICATION"
 }
 ```
@@ -523,7 +523,7 @@ All API errors follow a standard format:
     "name": "New Product",
     "description": "Product description",
     "price": 19.99,
-    "quantity": 50,
+    "stock": 50,
     "category": "MEDICATION",
     "pharmacyId": "pharmacy_id",
     "createdAt": "2023-01-01T00:00:00Z",
@@ -583,7 +583,7 @@ All API errors follow a standard format:
   "name": "Updated Product Name",
   "description": "Updated description",
   "price": 15.99,
-  "quantity": 75,
+  "stock": 75,
   "category": "MEDICATION"
 }
 ```
@@ -598,7 +598,7 @@ All API errors follow a standard format:
     "name": "Updated Product Name",
     "description": "Updated description",
     "price": 15.99,
-    "quantity": 75,
+    "stock": 75,
     "category": "MEDICATION",
     "pharmacyId": "pharmacy_id",
     "createdAt": "2023-01-01T00:00:00Z",

@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "YOUR_V1_COLLECTION_ID",
+		"_postman_id": "5b9afd2e-ba3a-4d96-8821-c08ee599dced",
 		"name": "Pharma-Link API v1",
 		"description": "Collection for Pharma-Link API v1 Endpoints",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28449090"
 	},
 	"item": [
 		{
@@ -39,7 +40,13 @@
 					"response": [
 						{
 							"name": "Pharmacist Registered Successfully",
-							"originalRequest": {},
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
 							"status": "Created",
 							"code": 201,
 							"_postman_previewlanguage": "json",
@@ -84,7 +91,13 @@
 					"response": [
 						{
 							"name": "Pharmacy Owner Registered Successfully",
-							"originalRequest": {},
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
 							"status": "Created",
 							"code": 201,
 							"_postman_previewlanguage": "json",
@@ -111,7 +124,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+							"raw": "{\n  \"email\": \"pharmacytestrestfull@example.com\",\n  \"password\": \"password123\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/auth/login",
@@ -128,7 +141,13 @@
 					"response": [
 						{
 							"name": "Login Successful",
-							"originalRequest": {},
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
 							"status": "OK",
 							"code": 200,
 							"_postman_previewlanguage": "json",
@@ -179,7 +198,13 @@
 					"response": [
 						{
 							"name": "Pharmacist Profile Retrieved",
-							"originalRequest": {},
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
 							"status": "OK",
 							"code": 200,
 							"_postman_previewlanguage": "json",
@@ -233,7 +258,13 @@
 					"response": [
 						{
 							"name": "Profile Updated Successfully",
-							"originalRequest": {},
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
 							"status": "OK",
 							"code": 200,
 							"_postman_previewlanguage": "json",
@@ -254,7 +285,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/pharmacists/search?city=Cairo&area=Nasr%20City&available=true&page=1&limit=10",
+							"raw": "{{baseUrl}}/pharmacists/search?city=Cairo",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -299,7 +330,13 @@
 					"response": [
 						{
 							"name": "Pharmacists Found",
-							"originalRequest": {},
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
 							"status": "OK",
 							"code": 200,
 							"_postman_previewlanguage": "json",
@@ -350,7 +387,13 @@
 					"response": [
 						{
 							"name": "Pharmacy Owner Profile Retrieved",
-							"originalRequest": {},
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
 							"status": "OK",
 							"code": 200,
 							"_postman_previewlanguage": "json",
@@ -404,7 +447,13 @@
 					"response": [
 						{
 							"name": "Profile Updated Successfully",
-							"originalRequest": {},
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
 							"status": "OK",
 							"code": 200,
 							"_postman_previewlanguage": "json",
@@ -459,7 +508,13 @@
 					"response": [
 						{
 							"name": "Subscription Updated Successfully",
-							"originalRequest": {},
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
 							"status": "OK",
 							"code": 200,
 							"_postman_previewlanguage": "json",
@@ -489,7 +544,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/store/products?page=1&limit=10",
+									"raw": "{{baseUrl}}/store/products",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -517,7 +572,13 @@
 							"response": [
 								{
 									"name": "All Products Retrieved",
-									"originalRequest": {},
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": ""
+										}
+									},
 									"status": "OK",
 									"code": 200,
 									"_postman_previewlanguage": "json",
@@ -538,7 +599,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/store/products/search?query=Paracetamol&city=Cairo&area=Nasr%20City&minPrice=5&maxPrice=20&page=1&limit=10",
+									"raw": "{{baseUrl}}/store/products/search?query=Paracetamol",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -596,7 +657,13 @@
 							"response": [
 								{
 									"name": "Products Found",
-									"originalRequest": {},
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": ""
+										}
+									},
 									"status": "OK",
 									"code": 200,
 									"_postman_previewlanguage": "json",
@@ -615,20 +682,25 @@
 							"name": "Get Product by ID (Public)",
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
 								"url": {
-									"raw": "{{baseUrl}}/store/products/:productId",
+									"raw": "{{baseUrl}}/store/products/:id",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"store",
 										"products",
-										":productId"
+										":id"
 									],
 									"variable": [
 										{
-											"key": "productId",
+											"key": "id",
 											"value": "product_id_example",
 											"description": "ID of the product to retrieve"
 										}
@@ -639,7 +711,13 @@
 							"response": [
 								{
 									"name": "Product Retrieved",
-									"originalRequest": {},
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": ""
+										}
+									},
 									"status": "OK",
 									"code": 200,
 									"_postman_previewlanguage": "json",
@@ -650,7 +728,7 @@
 										}
 									],
 									"cookie": [],
-									"body": "{\n  \"id\": \"product_id\",\n  \"name\": \"Paracetamol 500mg\",\n  \"description\": \"Pain reliever and fever reducer\",\n  \"price\": 10.99,\n  \"quantity\": 100,\n  \"pharmacyId\": \"pharmacy_id\",\n  \"pharmacyName\": \"Example Pharmacy\",\n  \"pharmacyAddress\": \"123 Main St, City\",\n  \"createdAt\": \"2023-01-01T00:00:00Z\",\n  \"updatedAt\": \"2023-01-01T00:00:00Z\"\n}"
+									"body": "{\n  \"id\": \"product_id\",\n  \"name\": \"Paracetamol 500mg\",\n  \"description\": \"Pain reliever and fever reducer\",\n  \"price\": 10.99,\n  \"category\": \"MEDICATION\",\n  \"isNearExpiry\": false,\n  \"expiryDate\": null,\n  \"imageUrl\": null,\n  \"stock\": 100,\n  \"pharmacyOwnerId\": \"pharmacy_owner_id\",\n  \"createdAt\": \"2023-01-01T00:00:00Z\",\n  \"updatedAt\": \"2023-01-01T00:00:00Z\",\n  \"pharmacyOwner\": {\n    \"pharmacyName\": \"Example Pharmacy\",\n    \"contactPerson\": \"John Doe\",\n    \"phoneNumber\": \"+1234567890\",\n    \"address\": \"123 Main St, City\",\n    \"city\": \"Cairo\",\n    \"area\": \"Nasr City\"\n  }\n}"
 								}
 							]
 						}
@@ -668,7 +746,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "{{jwt_token}}",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtYjd0YzMyOTAwMDkxMTlzaXk4bzVzYXkiLCJlbWFpbCI6InBoYXJtYWN5dGVzdHJlc3RmdWxsQGV4YW1wbGUuY29tIiwicm9sZSI6IlBIQVJNQUNZX09XTkVSIiwiaWF0IjoxNzQ4NDI4Nzc5LCJleHAiOjE3NDg1MTUxNzl9.6V5zeF-IiQgZjgJIQxrlVUffmzpkZ6zcP8ZVS1C1dBg",
 											"type": "string"
 										}
 									]
@@ -682,7 +760,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"New Product\",\n  \"description\": \"Product description\",\n  \"price\": 19.99,\n  \"quantity\": 50,\n  \"category\": \"MEDICATION\"\n}"
+									"raw": "{\n  \"name\": \"New Product\",\n  \"description\": \"Product description\",\n  \"price\": 19.99,\n  \"stock\": 50,\n  \"category\": \"MEDICATION\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/store/products",
@@ -699,7 +777,13 @@
 							"response": [
 								{
 									"name": "Product Created Successfully",
-									"originalRequest": {},
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": ""
+										}
+									},
 									"status": "Created",
 									"code": 201,
 									"_postman_previewlanguage": "json",
@@ -710,7 +794,7 @@
 										}
 									],
 									"cookie": [],
-									"body": "{\n  \"message\": \"Product created successfully\",\n  \"product\": {\n    \"id\": \"new_product_id\",\n    \"name\": \"New Product\",\n    \"description\": \"Product description\",\n    \"price\": 19.99,\n    \"quantity\": 50,\n    \"category\": \"MEDICATION\",\n    \"pharmacyId\": \"pharmacy_id\",\n    \"createdAt\": \"2023-01-01T00:00:00Z\",\n    \"updatedAt\": \"2023-01-01T00:00:00Z\"\n  }\n}"
+									"body": "{\n  \"message\": \"Product created successfully\",\n  \"product\": {\n    \"id\": \"new_product_id\",\n    \"name\": \"New Product\",\n    \"description\": \"Product description\",\n    \"price\": 19.99,\n    \"stock\": 50,\n    \"category\": \"MEDICATION\",\n    \"pharmacyId\": \"pharmacy_id\",\n    \"createdAt\": \"2023-01-01T00:00:00Z\",\n    \"updatedAt\": \"2023-01-01T00:00:00Z\"\n  }\n}"
 								}
 							]
 						},
@@ -730,7 +814,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/store/products/me?page=1&limit=10&category=MEDICATION&inStock=true",
+									"raw": "{{baseUrl}}/store/products/me",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -771,7 +855,13 @@
 							"response": [
 								{
 									"name": "My Products Retrieved",
-									"originalRequest": {},
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": ""
+										}
+									},
 									"status": "OK",
 									"code": 200,
 									"_postman_previewlanguage": "json",
@@ -782,7 +872,7 @@
 										}
 									],
 									"cookie": [],
-									"body": "{\n  \"success\": true,\n  \"data\": {\n    \"products\": [\n      {\n        \"id\": \"product_id\",\n        \"name\": \"Paracetamol 500mg\",\n        \"description\": \"Pain reliever and fever reducer\",\n        \"price\": 10.99,\n        \"quantity\": 100,\n        \"category\": \"MEDICATION\",\n        \"createdAt\": \"2023-01-01T00:00:00Z\",\n        \"updatedAt\": \"2023-01-01T00:00:00Z\"\n      }\n    ],\n    \"pagination\": {\n      \"total\": 1,\n      \"page\": 1,\n      \"limit\": 10,\n      \"totalPages\": 1\n    }\n  }\n}"
+									"body": "{\n  \"success\": true,\n  \"data\": {\n    \"products\": [\n      {\n        \"id\": \"product_id\",\n        \"name\": \"Paracetamol 500mg\",\n        \"description\": \"Pain reliever and fever reducer\",\n        \"price\": 10.99,\n        \"stock\": 100,\n        \"category\": \"MEDICATION\",\n        \"createdAt\": \"2023-01-01T00:00:00Z\",\n        \"updatedAt\": \"2023-01-01T00:00:00Z\"\n      }\n    ],\n    \"pagination\": {\n      \"total\": 1,\n      \"page\": 1,\n      \"limit\": 10,\n      \"totalPages\": 1\n    }\n  }\n}"
 								}
 							]
 						},
@@ -808,7 +898,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"Updated Product Name\",\n  \"description\": \"Updated description\",\n  \"price\": 15.99,\n  \"quantity\": 75,\n  \"category\": \"MEDICATION\"\n}"
+									"raw": "{\n  \"name\": \"Updated Product Name\",\n  \"description\": \"Updated description\",\n  \"price\": 15.99,\n  \"stock\": 75,\n  \"category\": \"MEDICATION\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/store/products/:productId",
@@ -833,7 +923,13 @@
 							"response": [
 								{
 									"name": "Product Updated Successfully",
-									"originalRequest": {},
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": ""
+										}
+									},
 									"status": "OK",
 									"code": 200,
 									"_postman_previewlanguage": "json",
@@ -886,7 +982,13 @@
 							"response": [
 								{
 									"name": "Product Deleted Successfully",
-									"originalRequest": {},
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": ""
+										}
+									},
 									"status": "OK",
 									"code": 200,
 									"_postman_previewlanguage": "json",
@@ -947,14 +1049,12 @@
 		{
 			"key": "jwt_token",
 			"value": "YOUR_JWT_TOKEN_HERE",
-			"type": "string",
-			"description": "Replace with your actual JWT token after login or registration."
+			"type": "string"
 		},
 		{
 			"key": "productId",
 			"value": "example_product_id",
-			"type": "string",
-			"description": "Example Product ID for path variables"
+			"type": "string"
 		}
 	]
 }
